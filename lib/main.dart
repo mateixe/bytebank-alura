@@ -8,16 +8,28 @@ class ByteBankApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        body: ListaTransferencias(),
-      ),
+      theme: ThemeData(
+          colorScheme:
+              ColorScheme.fromSwatch().copyWith(primary:Colors.pinkAccent[700],secondary: Colors.lightBlue[500]),
+              buttonTheme: ButtonThemeData(
+                buttonColor: Colors.lightBlue[500]
+              )
+              ),
+      home: ListaTransferencias(),
     );
   }
 }
 
-class FormularioTransferencia extends StatelessWidget {
+class FormularioTransferencia extends StatefulWidget {
   FormularioTransferencia({Key? key}) : super(key: key);
 
+  @override
+  State<StatefulWidget> createState() {
+    return FormularioTransferenciaState();
+  }
+}
+
+class FormularioTransferenciaState extends State<FormularioTransferencia> {
   final TextEditingController _numeroContaController = TextEditingController();
   final TextEditingController _valorController = TextEditingController();
 
@@ -25,24 +37,26 @@ class FormularioTransferencia extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: Text('Criando Transferência')),
-        body: Column(
-          children: [
-            EditorTexto(
-                controlador: _numeroContaController,
-                rotulo: 'Número da Conta',
-                dica: '0000',
-                icone: null),
-            EditorTexto(
-                controlador: _valorController,
-                rotulo: 'Valor',
-                dica: '0.00',
-                icone: Icons.monetization_on),
-            ElevatedButton(
-                // style: ElevatedButton.styleFrom(
-                // ),
-                onPressed: () => _criaTransferencia(context),
-                child: Text('Confirmar'))
-          ],
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              EditorTexto(
+                  controlador: _numeroContaController,
+                  rotulo: 'Número da Conta',
+                  dica: '0000',
+                  icone: null),
+              EditorTexto(
+                  controlador: _valorController,
+                  rotulo: 'Valor',
+                  dica: '0.00',
+                  icone: Icons.monetization_on),
+              ElevatedButton(
+                  // style: ElevatedButton.styleFrom(
+                  // ),
+                  onPressed: () => _criaTransferencia(context),
+                  child: Text('Confirmar'))
+            ],
+          ),
         ));
   }
 
@@ -80,19 +94,27 @@ class EditorTexto extends StatelessWidget {
   }
 }
 
-class ListaTransferencias extends StatelessWidget {
+class ListaTransferencias extends StatefulWidget {
   final List<Transferencia?> _transferencias = List.empty(growable: true);
 
   @override
+  State<StatefulWidget> createState() {
+    return ListaTransferenciasState();
+  }
+}
+
+class ListaTransferenciasState extends State<ListaTransferencias> {
+  @override
   Widget build(BuildContext context) {
+    // widget._transferencias.add(Transferencia(100.00, 10000));
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tranferências'),
       ),
       body: ListView.builder(
-          itemCount: _transferencias.length,
+          itemCount: widget._transferencias.length,
           itemBuilder: (context, index) {
-            final transferencia = _transferencias[index];
+            final transferencia = widget._transferencias[index];
             return ItemTransferencia(transferencia!);
           }),
       floatingActionButton: FloatingActionButton(
@@ -109,11 +131,11 @@ class ListaTransferencias extends StatelessWidget {
     }));
 
     future.then((transferenciaRecebida) {
-      debugPrint("into thes future");
-
+      debugPrint("into the future");
       if (transferenciaRecebida != null) {
-        debugPrint(transferenciaRecebida.toString());
-        _transferencias.add(transferenciaRecebida);
+        setState(() {
+          widget._transferencias.add(transferenciaRecebida);
+        });
       }
     });
   }
